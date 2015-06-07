@@ -1,36 +1,22 @@
 extern crate byteorder;
 
-mod tiledata;
+mod tile_data;
 
-use std::fs::File;
-use std::io::{Read};
-
-use tiledata::{LandTile, parse_blocks};
+use tile_data::{TileData};
 
 fn main() {
-    let mut buf: Vec<u8> = Vec::new();
+    let mut tile_data = TileData::new("data/tiledata.mul");
 
-    let mut file = match File::open("data/tiledata.mul") {
-        Err(e)   => panic!("Failed to open tiledata.mul: {}", e),
-        Ok(file) => file
-    };
-
-    match file.read_to_end(&mut buf) {
-        Err(e)   => panic!("Failed to read tiledata.mul to buffer: {}", e),
-        Ok(size) => size
-    };
-
-    let tiles: Vec<LandTile> = match parse_blocks(&buf[..], 16) {
-        Err(e)    => panic!("Failed to parse land tile groups: {}", e),
-        Ok(tiles) => tiles
+    let tiles = match tile_data.land_tiles() {
+        Ok(tiles) => tiles,
+        Err(e) => panic!("Failed to read land tiles: {}", e)
     };
 
     for tile in tiles {
         println!("========");
-        //println!("Tile {}", i);
-        println!("-------");
-        println!("Flags: {}", tile.flags);
-        println!("Texture Id: {}", tile.texture_id);
+//        println!("Flags: {}", tile.flags);
+//        println!("Texture Id: {}", tile.texture_id);
+//        println!("Weight: {}", tile.weight);
         println!("Name: {}", tile.name);
     }
 }
