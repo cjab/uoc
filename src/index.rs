@@ -30,19 +30,17 @@ impl Index {
         let mut file = try!(File::open(path));
         let mut buf: Vec<u8> = Vec::new();
         try!(file.read_to_end(&mut buf));
-        match Self::parse(&buf[..]) {
-            Ok(entries) => Ok(Index { entries: entries }),
-            Err(e)      => Err(e)
-        }
+        Ok(try!(Self::parse(&buf[..])))
     }
 
-    fn parse(buf: &[u8]) -> Result<Vec<IndexEntry>, io::Error> {
+    fn parse(buf: &[u8]) -> Result<Index, io::Error> {
         let entries_buf = buf.chunks(size_of::<IndexEntry>());
-        Ok(entries_buf.map(|entry_buf| {
+        let entries = entries_buf.map(|entry_buf| {
             match IndexEntry::parse(entry_buf) {
                 Ok(index_entry) => index_entry,
                 Err(e)          => IndexEntry { lookup: 0, length: 0, extra: 0 }//panic!("Failed to parse index: {}", e)
             }
-        }).collect())
+        }).collect();
+        Ok(Index { entries: entries })
     }
 }
