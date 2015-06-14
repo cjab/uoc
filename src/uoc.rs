@@ -1,26 +1,33 @@
 extern crate byteorder;
 
-//mod tile_data;
+mod tile_data;
 mod index;
 
-//use tile_data::{TileData};
+use tile_data::{TileData};
 use index::{Index};
 
 fn main() {
-    //let mut tile_data = TileData::new("data/tiledata.mul");
+    let tile_data = TileData::new("data/tiledata.mul");
 
-    //let tiles = match tile_data.land_tiles() {
-    //    Ok(tiles) => tiles,
-    //    Err(e) => panic!("Failed to read land tiles: {}", e)
-    //};
+    let land_tiles = match tile_data.land_tiles() {
+        Ok(tiles) => tiles,
+        Err(e) => panic!("Failed to read land tiles: {}", e)
+    };
 
-    //for tile in tiles {
-    //    println!("========");
-//  //      println!("Flags: {}", tile.flags);
-//  //      println!("Texture Id: {}", tile.texture_id);
-//  //      println!("Weight: {}", tile.weight);
-    //    println!("Name: {}", tile.name);
-    //}
+    for tile in land_tiles {
+        println!("========");
+        println!("Name: {}", tile.name);
+    }
+
+    let static_tiles = match tile_data.static_tiles() {
+        Ok(tiles) => tiles,
+        Err(e) => panic!("Failed to read static tiles: {}", e)
+    };
+
+    for tile in static_tiles {
+        println!("========");
+        println!("Name: {}", tile.name);
+    }
 
     let index = match Index::new("data/texidx.mul") {
         Ok(index) => index,
@@ -32,7 +39,6 @@ fn main() {
         println!("Length: {}", entry.length);
         println!("Extra:  {}", entry.extra);
     }
-    println!("DONE");
 }
 
 

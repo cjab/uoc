@@ -52,19 +52,14 @@ fn parse_tile_block<T: CanParse>(buf: &[u8]) -> Result<Vec<T>, io::Error> {
 
     let mut tile_data = Vec::new();
     try!(cursor.take((T::size() * TILES_IN_BLOCK) as u64).read_to_end(&mut tile_data));
-    let tiles = tile_data.chunks(T::size());
-
-    Ok(tiles.map(|t| {
-        match T::parse(t) {
-            Ok(tile) => tile,
-            Err(e)   => panic!("Failed to parse tile: {}", e)
-        }
-    }).collect())
+    let tiles = try!(tile_data.chunks(T::size()).map(T::parse).collect());
+    Ok(tiles)
 }
 
 
 fn parse_blocks<T: CanParse>(buf: &[u8], count: usize) -> Result<Vec<T>, io::Error> {
     let blocks: Vec<&[u8]> = buf.chunks(T::block_size()).take(count).collect();
+
 
     Ok(blocks.iter().flat_map(|block| {
         match parse_tile_block(&block[..]) {

@@ -1,4 +1,4 @@
-use std::io::{self, Read, BufRead};
+use std::io::{self, Read};
 use byteorder::{ReadBytesExt, LittleEndian};
 use tile_data::CanParse;
 use tile_data::BLOCK_HEADER_SIZE;

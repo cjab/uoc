@@ -34,13 +34,9 @@ impl Index {
     }
 
     fn parse(buf: &[u8]) -> Result<Index, io::Error> {
-        let entries_buf = buf.chunks(size_of::<IndexEntry>());
-        let entries = entries_buf.map(|entry_buf| {
-            match IndexEntry::parse(entry_buf) {
-                Ok(index_entry) => index_entry,
-                Err(e)          => IndexEntry { lookup: 0, length: 0, extra: 0 }//panic!("Failed to parse index: {}", e)
-            }
-        }).collect();
+        let entries_buf = buf.chunks(size_of::<IndexEntry>())
+                             .filter(|&e| e.len() == size_of::<IndexEntry>());
+        let entries = try!(entries_buf.map(IndexEntry::parse).collect());
         Ok(Index { entries: entries })
     }
 }

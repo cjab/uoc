@@ -34,8 +34,8 @@ impl CanParse for LandTile {
         tile.flags      = try!(cursor.read_i32::<LittleEndian>());
         tile.texture_id = try!(cursor.read_i16::<LittleEndian>());
         match cursor.take(NAME_LENGTH).read_to_string(&mut tile.name) {
-            Ok(result) => (),
-            Err(e) => ()
+            Ok(_) => (),
+            Err(_) => ()
         }
 
         Ok(tile)
