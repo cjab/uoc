@@ -8,3 +8,4 @@ name = "uoc"
 
 [dependencies]
 byteorder = "*"
+sdl2 = "0.4"

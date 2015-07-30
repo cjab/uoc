@@ -1,43 +1,79 @@
 extern crate byteorder;
+extern crate sdl2;
 
 mod tile_data;
 mod index;
+mod art;
+mod color;
+
+use std::path::Path;
 
 use tile_data::{TileData};
 use index::{Index};
 
+use art::{Art};
+
+use sdl2::event::{Event};
+use sdl2::surface::{Surface};
+use sdl2::pixels::{PixelFormatEnum};
+
+use std::fs::File;
+use std::io::{self, Read};
+use std::env;
+
+
 fn main() {
-    let tile_data = TileData::new("data/tiledata.mul");
 
-    let land_tiles = match tile_data.land_tiles() {
-        Ok(tiles) => tiles,
-        Err(e) => panic!("Failed to read land tiles: {}", e)
+    let index = env::args().last().unwrap().parse::<usize>().unwrap();
+
+
+    let art = match Art::new("data/") {
+        Ok(art)  => art,
+        Err(err) => panic!("Error: {:?}", err)
     };
 
-    for tile in land_tiles {
-        println!("========");
-        println!("Name: {}", tile.name);
-    }
-
-    let static_tiles = match tile_data.static_tiles() {
-        Ok(tiles) => tiles,
-        Err(e) => panic!("Failed to read static tiles: {}", e)
+    let tile = match art.get(index) {
+        Ok(tile) => tile,
+        Err(err) => panic!("Error: {:?}", err)
     };
 
-    for tile in static_tiles {
-        println!("========");
-        println!("Name: {}", tile.name);
-    }
+    let mut ctx = sdl2::init().everything().unwrap();
 
-    let index = match Index::new("data/texidx.mul") {
-        Ok(index) => index,
-        Err(e)    => panic!("Failed to read index: {}", e)
+    let window = match ctx.window("UOC", 640, 640).position_centered().opengl().build() {
+        Ok(window) => window,
+        Err(err)   => panic!("Failed to created window: {}", err)
     };
-    for entry in index.entries {
-        println!("============");
-        println!("Lookup: {}", entry.lookup);
-        println!("Length: {}", entry.length);
-        println!("Extra:  {}", entry.extra);
+
+    let mut renderer = match window.renderer().build() {
+        Ok(renderer) => renderer,
+        Err(err)     => panic!("Failed to create renderer: {}", err)
+    };
+
+    let mut tile_data = tile.as_rgb();
+    let surface = match Surface::from_data(&mut tile_data[..], 44, 44, 3 * 44, PixelFormatEnum::RGB24) {
+        Ok(surface) => surface,
+        Err(err)    => panic!("Failed to load surface: {}", err)
+    };
+
+    let texture = match renderer.create_texture_from_surface(&surface) {
+        Ok(texture) => texture,
+        Err(err)    => panic!("Failed to convert surface: {}", err)
+    };
+
+    let mut drawer = renderer.drawer();
+    let _ = drawer.clear();
+    let _ = drawer.copy(&texture, None, None);
+    let _ = drawer.present();
+
+    let mut events = ctx.event_pump();
+
+    'event: loop {
+        for event in events.poll_iter() {
+            match event {
+                Event::Quit{..} => break 'event,
+                _               => continue
+            }
+        }
     }
 }
 
