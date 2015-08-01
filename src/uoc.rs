@@ -4,6 +4,7 @@ extern crate sdl2;
 mod tile_data;
 mod index;
 mod art;
+mod texture;
 mod color;
 
 use std::path::Path;
@@ -11,6 +12,7 @@ use std::path::Path;
 use tile_data::{TileData};
 use index::{Index};
 
+use texture::{TextureReader};
 use art::{Art};
 
 use sdl2::event::{Event};
@@ -27,12 +29,22 @@ fn main() {
     let index = env::args().last().unwrap().parse::<usize>().unwrap();
 
 
-    let art = match Art::new("data/") {
-        Ok(art)  => art,
-        Err(err) => panic!("Error: {:?}", err)
+    //let art = match Art::new("data/") {
+    //    Ok(art)  => art,
+    //    Err(err) => panic!("Error: {:?}", err)
+    //};
+
+    //let tile = match art.get(index) {
+    //    Ok(tile) => tile,
+    //    Err(err) => panic!("Error: {:?}", err)
+    //};
+
+    let tile_reader = match TextureReader::new("data/") {
+        Ok(r) => r,
+        Err(err) => panic!("{:?}", err)
     };
 
-    let tile = match art.get(index) {
+    let tile = match tile_reader.get(index) {
         Ok(tile) => tile,
         Err(err) => panic!("Error: {:?}", err)
     };
@@ -50,7 +62,9 @@ fn main() {
     };
 
     let mut tile_data = tile.as_rgb();
-    let surface = match Surface::from_data(&mut tile_data[..], 44, 44, 3 * 44, PixelFormatEnum::RGB24) {
+    let width = tile.width() as u32;
+    println!("WIDTH: {}", width);
+    let surface = match Surface::from_data(&mut tile_data[..], width, width, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)
     };

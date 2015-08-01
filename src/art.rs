@@ -115,7 +115,6 @@ impl LandTile {
 
 fn pixel_count() -> usize {
     (0..(LAND_TILE_WIDTH / 2)).fold(0, |acc, i| { acc + ((i+1) * 2) }) * 2
-//    1024
 }
 
 
