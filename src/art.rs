@@ -1,9 +1,10 @@
-use byteorder::{self, ReadBytesExt, LittleEndian};
-use std::io::{self, Read, Seek, SeekFrom};
-use color::{Color};
-use index::{Index};
-use std::path::{Path, PathBuf};
 use std::fs::File;
+use std::path::Path;
+use std::io::{self, Read, Seek, SeekFrom};
+use byteorder::{self, ReadBytesExt, LittleEndian};
+
+use color::Color;
+use index::Index;
 
 const LAND_TILE_WIDTH: usize = 44;
 
@@ -69,7 +70,7 @@ impl<'a> ArtData<'a> {
 
 
 pub struct LandTile {
-    pub pixels: Vec<Color>
+    pixels: Vec<Color>
 }
 
 
@@ -77,7 +78,6 @@ impl LandTile {
 
     pub fn parse(buf: &[u8]) -> Result<LandTile, Error> {
         let mut cursor = io::Cursor::new(buf);
-        println!("HERE: {}, BYTE COUNT: {}", buf.len(), pixel_count());
         let pixels: Vec<Color> = try!((0..pixel_count()).map(|_| {
             try!(cursor.read_u16::<LittleEndian>().map(Color::parse))
         }).collect());
@@ -87,6 +87,10 @@ impl LandTile {
         } else {
             Ok(LandTile { pixels: pixels })
         }
+    }
+
+    pub fn width(&self) -> usize {
+        LAND_TILE_WIDTH
     }
 
     pub fn as_rgb(&self) -> Vec<u8> {
@@ -120,9 +124,8 @@ fn pixel_count() -> usize {
 fn padding(row: usize) -> usize {
     let half_width = LAND_TILE_WIDTH / 2;
     let is_top     = row < half_width;
-    let is_bottom  = row >= half_width;
 
-    let total_padding: i32 = if (is_top) {
+    let total_padding: i32 = if is_top {
         LAND_TILE_WIDTH as i32 - (2 * (row as i32 + 1))
     } else {
         LAND_TILE_WIDTH as i32 - (2 * (row as i32 + 1)) + 1

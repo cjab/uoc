@@ -3,7 +3,7 @@ extern crate sdl2;
 
 //mod tile_data;
 mod index;
-//mod art;
+mod art;
 mod texture;
 mod color;
 
@@ -11,7 +11,7 @@ mod color;
 //use index::Index;
 
 use texture::TextureData;
-//use art::ArtData;
+use art::ArtData;
 
 use sdl2::event::Event;
 use sdl2::surface::Surface;
@@ -25,22 +25,22 @@ fn main() {
     let index = env::args().last().unwrap().parse::<usize>().unwrap();
 
 
-    //let art = match Art::new("data/") {
-    //    Ok(art)  => art,
-    //    Err(err) => panic!("Error: {:?}", err)
-    //};
+    let art_data = match ArtData::new("data/") {
+        Ok(art)  => art,
+        Err(err) => panic!("Error: {:?}", err)
+    };
 
-    //let tile = match art.get(index) {
-    //    Ok(tile) => tile,
-    //    Err(err) => panic!("Error: {:?}", err)
-    //};
+    let land_tile = match art_data.get(index) {
+        Ok(tile) => tile,
+        Err(err) => panic!("Error: {:?}", err)
+    };
 
-    let tile_reader = match TextureData::new("data/") {
+    let texture_data = match TextureData::new("data/") {
         Ok(r) => r,
         Err(err) => panic!("{:?}", err)
     };
 
-    let tile = match tile_reader.get(index) {
+    let tile = match texture_data.get(index) {
         Ok(tile) => tile,
         Err(err) => panic!("Error: {:?}", err)
     };
@@ -57,8 +57,10 @@ fn main() {
         Err(err)     => panic!("Failed to create renderer: {}", err)
     };
 
-    let mut tile_data = tile.as_rgb();
-    let width = tile.width() as u32;
+//    let mut tile_data = tile.as_rgb();
+//    let width = tile.width() as u32;
+    let mut tile_data = land_tile.as_rgb();
+    let width = land_tile.width() as u32;
     let surface = match Surface::from_data(&mut tile_data[..], width, width, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)
