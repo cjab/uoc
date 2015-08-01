@@ -4,7 +4,6 @@ use color::{Color};
 use index::{Index};
 use std::path::{Path, PathBuf};
 use std::fs::File;
-use std::u32;
 
 const LAND_TILE_WIDTH: usize = 44;
 
@@ -33,37 +32,31 @@ impl From<byteorder::Error> for Error {
 }
 
 
-pub struct LandTile {
-    pub pixels: Vec<Color>
-}
 
-
-pub struct Art<'a> {
+pub struct ArtData<'a> {
     path:  &'a str,
     index: Index
 }
 
 
-impl<'a> Art<'a> {
+impl<'a> ArtData<'a> {
 
-    pub fn new(path: &str) -> Result<Art, Error> {
+    pub fn new(path: &str) -> Result<ArtData, Error> {
         let base_path  = Path::new(path);
         let index_path = base_path.join("artidx.mul");
 
-        Ok(Art {
+        Ok(ArtData {
             path:  try!(base_path.to_str().ok_or(Error::InvalidPath)),
             index: try!(Index::new(try!(index_path.to_str().ok_or(Error::InvalidPath))))
         })
     }
 
     pub fn get(&self, i: usize) -> Result<LandTile, Error> {
-        let entry     = &self.index.entries[i];
+        let entry     = &self.index.get(i);
         let data_path = Path::new(self.path).join("art.mul");
         let mut file  = try!(File::open(data_path));
 
-        println!("Lookup: {} -- Length: {}", entry.lookup, entry.length);
-
-        if entry.lookup >= (u32::MAX - 1) as u64 {
+        if entry.lookup_undefined() {
             return Err(Error::UndefinedIndex)
         }
 
@@ -71,6 +64,12 @@ impl<'a> Art<'a> {
         let buf: Vec<u8> = try!(file.take(entry.length).bytes().collect());
         Ok(try!(LandTile::parse(&buf[..])))
     }
+}
+
+
+
+pub struct LandTile {
+    pub pixels: Vec<Color>
 }
 
 

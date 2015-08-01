@@ -1,8 +1,11 @@
-use byteorder::{ReadBytesExt, LittleEndian};
-use std::io::{self, Read};
-use std::mem::{size_of};
+use std::u32;
 use std::fs::File;
-use std::path::{Path};
+use std::mem::size_of;
+use std::io::{self, Read};
+
+use byteorder::{ReadBytesExt, LittleEndian};
+
+
 
 pub struct IndexEntry {
     pub lookup: u64,
@@ -10,9 +13,6 @@ pub struct IndexEntry {
     pub extra:  i32
 }
 
-pub struct Index {
-    pub entries: Vec<IndexEntry>
-}
 
 impl IndexEntry {
     fn parse(buf: &[u8]) -> Result<IndexEntry, io::Error> {
@@ -23,7 +23,18 @@ impl IndexEntry {
             extra:  try!(cursor.read_i32::<LittleEndian>())
         })
     }
+
+    pub fn lookup_undefined(&self) -> bool {
+        self.lookup >= (u32::MAX - 1) as u64
+    }
 }
+
+
+
+pub struct Index {
+    entries: Vec<IndexEntry>
+}
+
 
 impl Index {
 
@@ -32,6 +43,10 @@ impl Index {
         let mut buf: Vec<u8> = Vec::new();
         try!(file.read_to_end(&mut buf));
         Ok(try!(Self::parse(&buf[..])))
+    }
+
+    pub fn get(&self, i: usize) -> &IndexEntry {
+        &self.entries[i]
     }
 
     fn parse(buf: &[u8]) -> Result<Index, io::Error> {

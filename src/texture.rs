@@ -1,19 +1,16 @@
-use index::{Index};
-use byteorder::{ReadBytesExt, LittleEndian};
-use color::{Color};
 use std::fs::File;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::io::{self, Read, Seek, SeekFrom, Cursor};
-use std::mem;
-use std::f32;
-use std::u32;
+use byteorder::{ReadBytesExt, LittleEndian};
+
+use index::Index;
+use color::Color;
 
 
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
     UndefinedIndex,
-    IncompleteTile,
     InvalidPath
 }
 
@@ -33,7 +30,7 @@ pub struct Texture {
 impl Texture {
 
     pub fn parse(buf: &[u8]) -> Result<Texture, io::Error> {
-        let pixel_count = (buf.len() / 2);
+        let pixel_count = buf.len() / 2;
         let mut cursor  = Cursor::new(buf);
 
         let pixels = try!((0..pixel_count).map(|_| {
@@ -53,37 +50,33 @@ impl Texture {
     pub fn width(&self) -> u64 {
         (self.pixels.len() as f32).sqrt() as u64
     }
-
-    pub fn height(&self) -> u64 {
-        (self.pixels.len() as f32).sqrt() as u64
-    }
 }
 
 
-pub struct TextureReader<'a> {
+pub struct TextureData<'a> {
     path:  &'a str,
     index: Index
 }
 
 
-impl<'a> TextureReader<'a> {
+impl<'a> TextureData<'a> {
 
-    pub fn new(path: &str) -> Result<TextureReader, Error> {
+    pub fn new(path: &str) -> Result<TextureData, Error> {
         let base_path  = Path::new(path);
         let index_path = base_path.join("texidx.mul");
 
-        Ok(TextureReader {
+        Ok(TextureData {
             path:  try!(base_path.to_str().ok_or(Error::InvalidPath)),
             index: try!(Index::new(try!(index_path.to_str().ok_or(Error::InvalidPath))))
         })
     }
 
     pub fn get(&self, i: usize) -> Result<Texture, Error> {
-        let entry     = &self.index.entries[i];
+        let entry     = self.index.get(i);
         let data_path = Path::new(self.path).join("texmaps.mul");
         let mut file  = try!(File::open(data_path));
 
-        if entry.lookup >= (u32::MAX - 1) as u64 {
+        if entry.lookup_undefined() {
             return Err(Error::UndefinedIndex)
         }
 

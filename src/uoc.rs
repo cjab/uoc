@@ -1,26 +1,22 @@
 extern crate byteorder;
 extern crate sdl2;
 
-mod tile_data;
+//mod tile_data;
 mod index;
-mod art;
+//mod art;
 mod texture;
 mod color;
 
-use std::path::Path;
+//use tile_data::TileData;
+//use index::Index;
 
-use tile_data::{TileData};
-use index::{Index};
+use texture::TextureData;
+//use art::ArtData;
 
-use texture::{TextureReader};
-use art::{Art};
+use sdl2::event::Event;
+use sdl2::surface::Surface;
+use sdl2::pixels::PixelFormatEnum;
 
-use sdl2::event::{Event};
-use sdl2::surface::{Surface};
-use sdl2::pixels::{PixelFormatEnum};
-
-use std::fs::File;
-use std::io::{self, Read};
 use std::env;
 
 
@@ -39,7 +35,7 @@ fn main() {
     //    Err(err) => panic!("Error: {:?}", err)
     //};
 
-    let tile_reader = match TextureReader::new("data/") {
+    let tile_reader = match TextureData::new("data/") {
         Ok(r) => r,
         Err(err) => panic!("{:?}", err)
     };
@@ -63,7 +59,6 @@ fn main() {
 
     let mut tile_data = tile.as_rgb();
     let width = tile.width() as u32;
-    println!("WIDTH: {}", width);
     let surface = match Surface::from_data(&mut tile_data[..], width, width, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)

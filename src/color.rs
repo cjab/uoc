@@ -1,4 +1,4 @@
-use std::io::{self, Read};
+use std::io;
 
 #[derive(Debug)]
 pub struct Color {
