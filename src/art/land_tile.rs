@@ -1,72 +1,11 @@
-use std::fs::File;
-use std::path::Path;
 use std::io::{self, Read, Seek, SeekFrom};
 use byteorder::{self, ReadBytesExt, LittleEndian};
 
+use art::{Art, Error};
 use color::Color;
-use index::Index;
+
 
 const LAND_TILE_WIDTH: usize = 44;
-
-
-#[derive(Debug)]
-pub enum Error {
-    Io(io::Error),
-    ByteOrder(byteorder::Error),
-    UndefinedIndex,
-    IncompleteTile,
-    InvalidPath
-}
-
-
-impl From<io::Error> for Error {
-    fn from(err: io::Error) -> Error {
-        Error::Io(err)
-    }
-}
-
-
-impl From<byteorder::Error> for Error {
-    fn from(err: byteorder::Error) -> Error {
-        Error::ByteOrder(err)
-    }
-}
-
-
-
-pub struct ArtData<'a> {
-    path:  &'a str,
-    index: Index
-}
-
-
-impl<'a> ArtData<'a> {
-
-    pub fn new(path: &str) -> Result<ArtData, Error> {
-        let base_path  = Path::new(path);
-        let index_path = base_path.join("artidx.mul");
-
-        Ok(ArtData {
-            path:  try!(base_path.to_str().ok_or(Error::InvalidPath)),
-            index: try!(Index::new(try!(index_path.to_str().ok_or(Error::InvalidPath))))
-        })
-    }
-
-    pub fn get(&self, i: usize) -> Result<LandTile, Error> {
-        let entry     = &self.index.get(i);
-        let data_path = Path::new(self.path).join("art.mul");
-        let mut file  = try!(File::open(data_path));
-
-        if entry.lookup_undefined() {
-            return Err(Error::UndefinedIndex)
-        }
-
-        try!(file.seek(SeekFrom::Start(entry.lookup)));
-        let buf: Vec<u8> = try!(file.take(entry.length).bytes().collect());
-        Ok(try!(LandTile::parse(&buf[..])))
-    }
-}
-
 
 
 pub struct LandTile {
@@ -76,7 +15,7 @@ pub struct LandTile {
 
 impl LandTile {
 
-    pub fn parse(buf: &[u8]) -> Result<LandTile, Error> {
+    pub fn parse(buf: &[u8]) -> Result<Self, Error> {
         let mut cursor = io::Cursor::new(buf);
         let pixels: Vec<Color> = try!((0..pixel_count()).map(|_| {
             try!(cursor.read_u16::<LittleEndian>().map(Color::parse))
@@ -90,6 +29,10 @@ impl LandTile {
     }
 
     pub fn width(&self) -> usize {
+        LAND_TILE_WIDTH
+    }
+
+    pub fn height(&self) -> usize {
         LAND_TILE_WIDTH
     }
 
@@ -117,7 +60,7 @@ impl LandTile {
 
 
 fn pixel_count() -> usize {
-    (0..(LAND_TILE_WIDTH / 2)).fold(0, |acc, i| { acc + ((i+1) * 2) }) * 2
+    (0..(LAND_TILE_WIDTH / 2)).fold(0, |acc, i| acc + ((i+1) * 2)) * 2
 }
 
 

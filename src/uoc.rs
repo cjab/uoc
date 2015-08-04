@@ -11,7 +11,7 @@ mod color;
 //use index::Index;
 
 use texture::TextureData;
-use art::ArtData;
+use art::{ArtData, Art};
 
 use sdl2::event::Event;
 use sdl2::surface::Surface;
@@ -30,20 +30,20 @@ fn main() {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let land_tile = match art_data.get(index) {
+    let land_tile = match art_data.get_static(index) {
         Ok(tile) => tile,
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let texture_data = match TextureData::new("data/") {
-        Ok(r) => r,
-        Err(err) => panic!("{:?}", err)
-    };
+    //let texture_data = match TextureData::new("data/") {
+    //    Ok(r) => r,
+    //    Err(err) => panic!("{:?}", err)
+    //};
 
-    let tile = match texture_data.get(index) {
-        Ok(tile) => tile,
-        Err(err) => panic!("Error: {:?}", err)
-    };
+    //let tile = match texture_data.get(index) {
+    //    Ok(tile) => tile,
+    //    Err(err) => panic!("Error: {:?}", err)
+    //};
 
     let mut ctx = sdl2::init().everything().unwrap();
 
@@ -57,10 +57,17 @@ fn main() {
         Err(err)     => panic!("Failed to create renderer: {}", err)
     };
 
-//    let mut tile_data = tile.as_rgb();
-//    let width = tile.width() as u32;
     let mut tile_data = land_tile.as_rgb();
     let width = land_tile.width() as u32;
+    //let mut tile_data = match land_tile {
+    //    Art::Land(ref tile) => tile.as_rgb(),
+    //    Art::Static(ref tile) => tile.as_rgb()
+    //};
+    //let width = match land_tile {
+    //    Art::Land(ref tile) => tile.width() as u32,
+    //    Art::Static(ref tile) => tile.width() as u32
+    //};
+    println!("WIDTH: {}", width);
     let surface = match Surface::from_data(&mut tile_data[..], width, width, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)

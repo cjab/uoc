@@ -7,6 +7,7 @@ use byteorder::{ReadBytesExt, LittleEndian};
 
 
 
+#[derive(Debug)]
 pub struct IndexEntry {
     pub lookup: u64,
     pub length: u64,
