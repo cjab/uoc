@@ -1,5 +1,5 @@
-use std::io::{self, Read, Seek, SeekFrom, Cursor};
-use byteorder::{self, ReadBytesExt, LittleEndian};
+use std::io::{self, Seek, SeekFrom};
+use byteorder::{ReadBytesExt, LittleEndian};
 
 use art::Error::{self, IncompleteTile};
 use color::Color;
@@ -55,7 +55,6 @@ impl StaticTile {
             }
         }
 
-
         Ok(StaticTile {
             header: header,
             width:  width,
@@ -65,13 +64,16 @@ impl StaticTile {
         })
     }
 
+
     pub fn width(&self) -> usize {
         self.width as usize
     }
 
+
     pub fn height(&self) -> usize {
         self.height as usize
     }
+
 
     pub fn as_rgb(&self) -> Vec<u8> {
         self.pixels.iter().fold(Vec::new(), |mut data: Vec<u8>, pixel: &Color| {

@@ -13,6 +13,7 @@ impl Color {
         Color { red: 0, green: 0, blue: 0 }
     }
 
+
     pub fn parse(data: u16) -> Result<Color, io::Error> {
         let mut color = Self::new();
 
@@ -26,6 +27,7 @@ impl Color {
 
         Ok(color)
     }
+
 
     pub fn as_rgb(&self) -> Vec<u8> {
         vec!(self.red, self.green, self.blue)

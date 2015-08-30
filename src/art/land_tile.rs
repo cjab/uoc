@@ -1,5 +1,5 @@
-use std::io::{self, Read, Seek, SeekFrom};
-use byteorder::{self, ReadBytesExt, LittleEndian};
+use std::io;
+use byteorder::{ReadBytesExt, LittleEndian};
 
 use art::Error;
 use color::Color;
@@ -7,6 +7,7 @@ use color::Color;
 
 const WIDTH: usize = 44;
 const HALF_WIDTH: usize = WIDTH / 2;
+
 
 
 pub struct LandTile {
@@ -51,13 +52,16 @@ impl LandTile {
         Ok(LandTile { pixels: pixels })
     }
 
+
     pub fn width(&self) -> usize {
         WIDTH
     }
 
+
     pub fn height(&self) -> usize {
         WIDTH
     }
+
 
     pub fn as_rgb(&self) -> Vec<u8> {
         self.pixels.iter().fold(Vec::with_capacity(WIDTH * WIDTH), |mut data: Vec<u8>, pixel: &Color| {
