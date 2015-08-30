@@ -65,7 +65,7 @@ impl ArtData {
             return Err(Error::UndefinedIndex)
         }
 
-        try!(file.seek(SeekFrom::Start((entry.lookup / 2) as u64)));
+        try!(file.seek(SeekFrom::Start(entry.lookup as u64)));
         let buf: Vec<u8> = try!(file.take(entry.length as u64).bytes().collect());
         Ok(try!(LandTile::parse(&buf[..])))
     }
