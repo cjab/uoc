@@ -47,8 +47,8 @@ impl Texture {
         })
     }
 
-    pub fn width(&self) -> u64 {
-        (self.pixels.len() as f32).sqrt() as u64
+    pub fn width(&self) -> usize {
+        (self.pixels.len() as f32).sqrt() as usize
     }
 }
 

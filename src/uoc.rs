@@ -1,4 +1,5 @@
 extern crate byteorder;
+extern crate argparse;
 extern crate sdl2;
 
 //mod tile_data;
@@ -13,16 +14,22 @@ mod color;
 use texture::TextureData;
 use art::ArtData;
 
+use argparse::{ArgumentParser, StoreTrue, Store};
+
 use sdl2::event::Event;
+use sdl2::render::Texture;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
 
 use std::env;
 
+struct Options {
+    asset_type: String,
+    index: usize,
+}
 
-fn main() {
-    let index = env::args().last().unwrap().parse::<usize>().unwrap();
 
+fn get_land(index: usize) -> (Vec<u8>, u32, u32) {
     let art_data = match ArtData::new("data/") {
         Ok(art)  => art,
         Err(err) => panic!("Error: {:?}", err)
@@ -33,19 +40,67 @@ fn main() {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    //let texture_data = match TextureData::new("data/") {
-    //    Ok(r) => r,
-    //    Err(err) => panic!("{:?}", err)
-    //};
-
-    //let tile = match texture_data.get(index) {
-    //    Ok(tile) => tile,
-    //    Err(err) => panic!("Error: {:?}", err)
-    //};
-    //
     let mut tile_data = land_tile.as_rgb();
     let width  = land_tile.width() as u32;
     let height = land_tile.height() as u32;
+    (tile_data, width, height)
+}
+
+
+fn get_static(index: usize) -> (Vec<u8>, u32, u32) {
+    let art_data = match ArtData::new("data/") {
+        Ok(art)  => art,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let static_tile = match art_data.get_static(index) {
+        Ok(tile) => tile,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let mut tile_data = static_tile.as_rgb();
+    let width  = static_tile.width() as u32;
+    let height = static_tile.height() as u32;
+    (tile_data, width, height)
+}
+
+
+fn get_texture(index: usize) -> (Vec<u8>, u32, u32) {
+    let texture_data = match TextureData::new("data/") {
+        Ok(r) => r,
+        Err(err) => panic!("{:?}", err)
+    };
+
+    let tile = match texture_data.get(index) {
+        Ok(tile) => tile,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let mut tile_data = tile.as_rgb();
+    let width  = tile.width() as u32;
+    let height = tile.width() as u32;
+    (tile_data, width, height)
+}
+
+
+fn main() {
+    let mut options = Options { asset_type: String::new(), index: 0 as usize };
+
+    {
+        let mut parser = ArgumentParser::new();
+        parser.refer(&mut options.asset_type)
+              .add_argument("asset type", Store, "Type of asset");
+        parser.refer(&mut options.index)
+              .add_argument("id", Store, "The id of the asset");
+        parser.parse_args_or_exit();
+    }
+
+    let (mut asset_data, width, height) = match(options.asset_type.as_ref()) {
+        "land"    => get_land(options.index),
+        "texture" => get_texture(options.index),
+        "static"  => get_static(options.index),
+        _         => panic!("Unknown asset type!")
+    };
 
     let mut ctx = sdl2::init().everything().unwrap();
 
@@ -59,7 +114,7 @@ fn main() {
         Err(err)     => panic!("Failed to create renderer: {}", err)
     };
 
-    let surface = match Surface::from_data(&mut tile_data[..], width, height, 3 * width, PixelFormatEnum::RGB24) {
+    let surface = match Surface::from_data(&mut asset_data[..], width, height, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)
     };
