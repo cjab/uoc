@@ -80,8 +80,8 @@ impl<'a> TextureData<'a> {
             return Err(Error::UndefinedIndex)
         }
 
-        try!(file.seek(SeekFrom::Start(entry.lookup)));
-        let buf: Vec<u8> = try!(file.take(entry.length).bytes().collect());
+        try!(file.seek(SeekFrom::Start(entry.lookup as u64)));
+        let buf: Vec<u8> = try!(file.take(entry.length as u64).bytes().collect());
         Ok(try!(Texture::parse(&buf[..])))
     }
 }

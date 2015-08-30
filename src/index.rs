@@ -1,4 +1,4 @@
-use std::u32;
+use std::i32;
 use std::fs::File;
 use std::mem::size_of;
 use std::io::{self, Read};
@@ -9,8 +9,8 @@ use byteorder::{ReadBytesExt, LittleEndian};
 
 #[derive(Debug)]
 pub struct IndexEntry {
-    pub lookup: u64,
-    pub length: u64,
+    pub lookup: i32,
+    pub length: i32,
     pub extra:  i32
 }
 
@@ -19,14 +19,14 @@ impl IndexEntry {
     fn parse(buf: &[u8]) -> Result<IndexEntry, io::Error> {
         let mut cursor = io::Cursor::new(buf);
         Ok(IndexEntry {
-            lookup: try!(cursor.read_i32::<LittleEndian>()) as u64,
-            length: try!(cursor.read_i32::<LittleEndian>()) as u64,
+            lookup: try!(cursor.read_i32::<LittleEndian>()),
+            length: try!(cursor.read_i32::<LittleEndian>()),
             extra:  try!(cursor.read_i32::<LittleEndian>())
         })
     }
 
     pub fn lookup_undefined(&self) -> bool {
-        self.lookup >= (u32::MAX - 1) as u64
+        self.lookup >= (i32::MAX - 1) as i32
     }
 }
 

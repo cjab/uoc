@@ -10,7 +10,7 @@ use index::Index;
 use self::land_tile::LandTile;
 use self::static_tile::StaticTile;
 
-const STATIC_TILE_OFFSET: usize = 0x4000;
+const STATIC_TILE_INDEX_OFFSET: usize = 0x4000;
 
 
 #[derive(Debug)]
@@ -65,21 +65,21 @@ impl ArtData {
             return Err(Error::UndefinedIndex)
         }
 
-        try!(file.seek(SeekFrom::Start(entry.lookup / 2)));
-        let buf: Vec<u8> = try!(file.take(entry.length).bytes().collect());
+        try!(file.seek(SeekFrom::Start((entry.lookup / 2) as u64)));
+        let buf: Vec<u8> = try!(file.take(entry.length as u64).bytes().collect());
         Ok(try!(LandTile::parse(&buf[..])))
     }
 
     pub fn get_static(&self, i: usize) -> Result<StaticTile, Error> {
-        let entry    = &self.index.get(STATIC_TILE_OFFSET + i);
+        let entry    = &self.index.get(STATIC_TILE_INDEX_OFFSET + i);
         let mut file = &self.file;
 
         if entry.lookup_undefined() {
             return Err(Error::UndefinedIndex)
         }
 
-        try!(file.seek(SeekFrom::Start(entry.lookup)));
-        let buf: Vec<u8> = try!(file.take(entry.length).bytes().collect());
+        try!(file.seek(SeekFrom::Start(entry.lookup as u64)));
+        let buf: Vec<u8> = try!(file.take(entry.length as u64).bytes().collect());
         Ok(try!(StaticTile::parse(&buf[..])))
     }
 }

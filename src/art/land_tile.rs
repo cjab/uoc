@@ -1,7 +1,7 @@
 use std::io::{self, Read, Seek, SeekFrom};
 use byteorder::{self, ReadBytesExt, LittleEndian};
 
-use art::{Art, Error};
+use art::Error;
 use color::Color;
 
 

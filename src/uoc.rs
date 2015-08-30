@@ -11,7 +11,7 @@ mod color;
 //use index::Index;
 
 use texture::TextureData;
-use art::{ArtData, Art};
+use art::ArtData;
 
 use sdl2::event::Event;
 use sdl2::surface::Surface;
@@ -21,16 +21,14 @@ use std::env;
 
 
 fn main() {
-
     let index = env::args().last().unwrap().parse::<usize>().unwrap();
-
 
     let art_data = match ArtData::new("data/") {
         Ok(art)  => art,
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let land_tile = match art_data.get_static(index) {
+    let land_tile = match art_data.get_land(index) {
         Ok(tile) => tile,
         Err(err) => panic!("Error: {:?}", err)
     };
@@ -44,10 +42,14 @@ fn main() {
     //    Ok(tile) => tile,
     //    Err(err) => panic!("Error: {:?}", err)
     //};
+    //
+    let mut tile_data = land_tile.as_rgb();
+    let width  = land_tile.width() as u32;
+    let height = land_tile.height() as u32;
 
     let mut ctx = sdl2::init().everything().unwrap();
 
-    let window = match ctx.window("UOC", 640, 640).position_centered().opengl().build() {
+    let window = match ctx.window("UOC", width * 5, height * 5).position_centered().opengl().build() {
         Ok(window) => window,
         Err(err)   => panic!("Failed to created window: {}", err)
     };
@@ -57,18 +59,7 @@ fn main() {
         Err(err)     => panic!("Failed to create renderer: {}", err)
     };
 
-    let mut tile_data = land_tile.as_rgb();
-    let width = land_tile.width() as u32;
-    //let mut tile_data = match land_tile {
-    //    Art::Land(ref tile) => tile.as_rgb(),
-    //    Art::Static(ref tile) => tile.as_rgb()
-    //};
-    //let width = match land_tile {
-    //    Art::Land(ref tile) => tile.width() as u32,
-    //    Art::Static(ref tile) => tile.width() as u32
-    //};
-    println!("WIDTH: {}", width);
-    let surface = match Surface::from_data(&mut tile_data[..], width, width, 3 * width, PixelFormatEnum::RGB24) {
+    let surface = match Surface::from_data(&mut tile_data[..], width, height, 3 * width, PixelFormatEnum::RGB24) {
         Ok(surface) => surface,
         Err(err)    => panic!("Failed to load surface: {}", err)
     };
