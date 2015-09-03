@@ -5,6 +5,7 @@ extern crate sdl2;
 //mod tile_data;
 mod index;
 mod art;
+mod anim;
 mod texture;
 mod color;
 
@@ -13,6 +14,7 @@ mod color;
 
 use texture::TextureData;
 use art::ArtData;
+use anim::AnimationFile;
 
 use argparse::{ArgumentParser, StoreTrue, Store};
 
@@ -83,6 +85,24 @@ fn get_texture(index: usize) -> (Vec<u8>, u32, u32) {
 }
 
 
+fn get_animation(index: usize) -> (Vec<u8>, u32, u32) {
+    let animation_file = match AnimationFile::new("data/") {
+        Ok(file) => file,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let animation = match animation_file.get_animation(index) {
+        Ok(anim) => anim,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let mut anim_data = animation.as_rgb();
+    let width  = 400;//animation.width() as u32;
+    let height = 400;//animation.height() as u32;
+    (anim_data, width, height)
+}
+
+
 fn main() {
     let mut options = Options { asset_type: String::new(), index: 0 as usize };
 
@@ -96,10 +116,11 @@ fn main() {
     }
 
     let (mut asset_data, width, height) = match(options.asset_type.as_ref()) {
-        "land"    => get_land(options.index),
-        "texture" => get_texture(options.index),
-        "static"  => get_static(options.index),
-        _         => panic!("Unknown asset type!")
+        "land"      => get_land(options.index),
+        "texture"   => get_texture(options.index),
+        "static"    => get_static(options.index),
+        "animation" => get_animation(options.index),
+        _           => panic!("Unknown asset type!")
     };
 
     let mut ctx = sdl2::init().everything().unwrap();

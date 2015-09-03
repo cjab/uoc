@@ -26,15 +26,12 @@ impl StaticTile {
 
         if width <= 0 || height <= 0 { return Err(IncompleteTile) }
 
-        let lookup: Vec<u16> = try!((0..height).map(|_| {
+        let lookup: Vec<_> = try!((0..height).map(|_| {
             cursor.read_u16::<LittleEndian>()
         }).collect());
 
         let size = (width * height) as usize;
-        let mut pixels = (0..size).fold(Vec::with_capacity(size), |mut pixels: Vec<Color>, _| {
-            pixels.push(Color::new());
-            pixels
-        });
+        let mut pixels: Vec<_> = (0..size).map(|_| Color::new()).collect();
         for y in (0..height as usize) {
             let start = ((lookup[y as usize] + 4 + height) * 2) as u64;
             cursor.seek(SeekFrom::Start(start));
@@ -76,9 +73,6 @@ impl StaticTile {
 
 
     pub fn as_rgb(&self) -> Vec<u8> {
-        self.pixels.iter().fold(Vec::new(), |mut data: Vec<u8>, pixel: &Color| {
-            data.extend(pixel.as_rgb().iter());
-            data
-        })
+        self.pixels.iter().flat_map(Color::as_rgb).collect()
     }
 }

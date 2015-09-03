@@ -41,10 +41,7 @@ impl Texture {
     }
 
     pub fn as_rgb(&self) -> Vec<u8> {
-        self.pixels.iter().fold(Vec::new(), |mut acc, pixel| {
-            acc.extend(pixel.as_rgb());
-            acc
-        })
+        self.pixels.iter().flat_map(Color::as_rgb).collect()
     }
 
     pub fn width(&self) -> usize {

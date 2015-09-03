@@ -21,10 +21,7 @@ impl LandTile {
         let mut cursor = io::Cursor::new(buf);
 
         let size = WIDTH * WIDTH;
-        let mut pixels = (0..size).fold(Vec::with_capacity(size), |mut pixels: Vec<_>, _| {
-            pixels.push(Color::new());
-            pixels
-        });
+        let mut pixels: Vec<_> = (0..size).map(|_| Color::new()).collect();
 
         let mut line_width = 2;
         let mut x = HALF_WIDTH;
@@ -64,9 +61,6 @@ impl LandTile {
 
 
     pub fn as_rgb(&self) -> Vec<u8> {
-        self.pixels.iter().fold(Vec::with_capacity(WIDTH * WIDTH), |mut data: Vec<u8>, pixel: &Color| {
-            data.extend(pixel.as_rgb().iter());
-            data
-        })
+        self.pixels.iter().flat_map(Color::as_rgb).collect()
     }
 }
