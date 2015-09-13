@@ -16,14 +16,11 @@ use texture::TextureData;
 use art::ArtData;
 use anim::AnimationFile;
 
-use argparse::{ArgumentParser, StoreTrue, Store};
+use argparse::{ArgumentParser, Store};
 
 use sdl2::event::Event;
-use sdl2::render::Texture;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
-
-use std::env;
 
 struct Options {
     asset_type: String,
@@ -42,7 +39,7 @@ fn get_land(index: usize) -> (Vec<u8>, u32, u32) {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let mut tile_data = land_tile.as_rgb();
+    let tile_data = land_tile.as_rgb();
     let width  = land_tile.width() as u32;
     let height = land_tile.height() as u32;
     (tile_data, width, height)
@@ -60,7 +57,7 @@ fn get_static(index: usize) -> (Vec<u8>, u32, u32) {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let mut tile_data = static_tile.as_rgb();
+    let tile_data = static_tile.as_rgb();
     let width  = static_tile.width() as u32;
     let height = static_tile.height() as u32;
     (tile_data, width, height)
@@ -78,7 +75,7 @@ fn get_texture(index: usize) -> (Vec<u8>, u32, u32) {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let mut tile_data = tile.as_rgb();
+    let tile_data = tile.as_rgb();
     let width  = tile.width() as u32;
     let height = tile.width() as u32;
     (tile_data, width, height)
@@ -91,15 +88,17 @@ fn get_animation(index: usize) -> (Vec<u8>, u32, u32) {
         Err(err) => panic!("Error: {:?}", err)
     };
 
+    println!("INDEX: {}", index);
+
     let animation = match animation_file.get_animation(index) {
         Ok(anim) => anim,
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let mut anim_data = animation.as_rgb();
-    let width  = 400;//animation.width() as u32;
-    let height = 400;//animation.height() as u32;
-    (anim_data, width, height)
+    let frame = animation.get_frame(0).unwrap();
+    let width  = frame.width() as u32;
+    let height = frame.height() as u32;
+    (frame.as_rgb(), width, height)
 }
 
 
@@ -115,7 +114,7 @@ fn main() {
         parser.parse_args_or_exit();
     }
 
-    let (mut asset_data, width, height) = match(options.asset_type.as_ref()) {
+    let (mut asset_data, width, height) = match options.asset_type.as_ref() {
         "land"      => get_land(options.index),
         "texture"   => get_texture(options.index),
         "static"    => get_static(options.index),

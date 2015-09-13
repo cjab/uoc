@@ -4,7 +4,7 @@ mod static_tile;
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, Read, Seek, SeekFrom};
-use byteorder::{self, ReadBytesExt, LittleEndian};
+use byteorder;
 
 use index::Index;
 use self::land_tile::LandTile;

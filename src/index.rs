@@ -51,9 +51,9 @@ impl Index {
     }
 
     fn parse(buf: &[u8]) -> Result<Index, io::Error> {
-        let entries_buf = buf.chunks(size_of::<IndexEntry>())
-                             .filter(|&e| e.len() == size_of::<IndexEntry>());
-        let entries = try!(entries_buf.map(IndexEntry::parse).collect());
+        let entries = try!(buf.chunks(size_of::<IndexEntry>())
+                              .filter(|&e| e.len() == size_of::<IndexEntry>())
+                              .map(IndexEntry::parse).collect());
         Ok(Index { entries: entries })
     }
 }

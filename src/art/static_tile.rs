@@ -7,10 +7,8 @@ use color::Color;
 
 
 pub struct StaticTile {
-    header: u32,
     width:  u16,
     height: u16,
-    lookup: Vec<u16>,
     pixels: Vec<Color>
 }
 
@@ -20,7 +18,7 @@ impl StaticTile {
     pub fn parse(buf: &[u8]) -> Result<Self, Error> {
         let mut cursor  = io::Cursor::new(buf);
 
-        let header = try!(cursor.read_u32::<LittleEndian>());
+        try!(cursor.read_u32::<LittleEndian>()); // Unknown Header
         let width  = try!(cursor.read_u16::<LittleEndian>());
         let height = try!(cursor.read_u16::<LittleEndian>());
 
@@ -30,11 +28,12 @@ impl StaticTile {
             cursor.read_u16::<LittleEndian>()
         }).collect());
 
-        let size = (width * height) as usize;
-        let mut pixels: Vec<_> = (0..size).map(|_| Color::new()).collect();
+        let size       = (width * height) as usize;
+        let mut pixels = vec![Color::new(); size];
+
         for y in (0..height as usize) {
             let start = ((lookup[y as usize] + 4 + height) * 2) as u64;
-            cursor.seek(SeekFrom::Start(start));
+            try!(cursor.seek(SeekFrom::Start(start)));
 
             let mut x: usize = 0;
             loop {
@@ -53,10 +52,8 @@ impl StaticTile {
         }
 
         Ok(StaticTile {
-            header: header,
             width:  width,
             height: height,
-            lookup: lookup,
             pixels: pixels
         })
     }

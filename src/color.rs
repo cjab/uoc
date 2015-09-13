@@ -1,6 +1,6 @@
 use std::io;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Color {
     pub red:   u8,
     pub green: u8,

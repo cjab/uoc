@@ -20,11 +20,11 @@ impl LandTile {
     pub fn parse(buf: &[u8]) -> Result<Self, Error> {
         let mut cursor = io::Cursor::new(buf);
 
-        let size = WIDTH * WIDTH;
-        let mut pixels: Vec<_> = (0..size).map(|_| Color::new()).collect();
+        let size       = WIDTH * WIDTH;
+        let mut pixels = vec![Color::new(); size];
 
         let mut line_width = 2;
-        let mut x = HALF_WIDTH;
+        let mut x          = HALF_WIDTH;
 
         for y in (0..HALF_WIDTH) {
             x -= 1;
