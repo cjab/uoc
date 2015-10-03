@@ -2,15 +2,14 @@ extern crate byteorder;
 extern crate argparse;
 extern crate sdl2;
 
-//mod tile_data;
+mod tile_data;
 mod index;
 mod art;
 mod anim;
 mod texture;
 mod color;
 
-//use tile_data::TileData;
-//use index::Index;
+use tile_data::TileData;
 
 use texture::TextureData;
 use art::ArtData;
@@ -33,6 +32,14 @@ fn get_land(index: usize) -> (Vec<u8>, u32, u32) {
         Ok(art)  => art,
         Err(err) => panic!("Error: {:?}", err)
     };
+
+    let tile_data = match TileData::new("data/tiledata.mul") {
+        Ok(data) => data,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let data = tile_data.get_land_tile(index).unwrap();
+    println!("DATA: {:?}", data);
 
     let land_tile = match art_data.get_land(index) {
         Ok(tile) => tile,
@@ -57,10 +64,17 @@ fn get_static(index: usize) -> (Vec<u8>, u32, u32) {
         Err(err) => panic!("Error: {:?}", err)
     };
 
-    let tile_data = static_tile.as_rgb();
+    let tile_data = match TileData::new("data/tiledata.mul") {
+        Ok(data) => data,
+        Err(err) => panic!("Error: {:?}", err)
+    };
+
+    let data = tile_data.get_land_tile(index).unwrap();
+    println!("DATA: {:?}", data);
+
     let width  = static_tile.width() as u32;
     let height = static_tile.height() as u32;
-    (tile_data, width, height)
+    (static_tile.as_rgb(), width, height)
 }
 
 
@@ -100,6 +114,7 @@ fn get_animation(index: usize) -> (Vec<u8>, u32, u32) {
     let height = frame.height() as u32;
     (frame.as_rgb(), width, height)
 }
+
 
 
 fn main() {

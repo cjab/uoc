@@ -1,12 +1,12 @@
 use std::io::{self, Read};
 use byteorder::{ReadBytesExt, LittleEndian};
-use tile_data::CanParse;
+use tile_data::Tile;
 use tile_data::BLOCK_HEADER_SIZE;
 use tile_data::TILES_IN_BLOCK;
 
-const NAME_LENGTH:          u64 = 20;
+const NAME_LENGTH: u64 = 20;
 
-
+#[derive(Debug)]
 pub struct LandTile {
     pub flags:      i32,
     pub texture_id: i16,
@@ -25,7 +25,7 @@ impl LandTile {
 }
 
 
-impl CanParse for LandTile {
+impl Tile for LandTile {
 
     fn parse(buf: &[u8]) -> Result<LandTile, io::Error> {
         let mut cursor = io::Cursor::new(buf);

@@ -1,6 +1,6 @@
 use std::io::{self, Read};
 use byteorder::{ReadBytesExt, LittleEndian};
-use tile_data::CanParse;
+use tile_data::Tile;
 use tile_data::BLOCK_HEADER_SIZE;
 use tile_data::TILES_IN_BLOCK;
 
@@ -44,24 +44,24 @@ impl StaticTile {
 }
 
 
-impl CanParse for StaticTile {
+impl Tile for StaticTile {
 
     fn parse(buf: &[u8]) -> Result<StaticTile, io::Error> {
         let mut cursor = io::Cursor::new(buf);
         let mut tile   = Self::new();
 
-        tile.flags      = try!(cursor.read_i32::<LittleEndian>());
-        tile.weight     = try!(cursor.read_u8());
-        tile.quality    = try!(cursor.read_u8());
-        tile.unknown1   = try!(cursor.read_i16::<LittleEndian>());
-        tile.unknown2   = try!(cursor.read_u8());
-        tile.quantity   = try!(cursor.read_u8());
-        tile.animation  = try!(cursor.read_i16::<LittleEndian>());
-        tile.unknown3   = try!(cursor.read_u8());
-        tile.hue        = try!(cursor.read_u8());
-        tile.unknown4   = try!(cursor.read_u8());
-        tile.unknown5   = try!(cursor.read_u8());
-        tile.height     = try!(cursor.read_u8());
+        tile.flags     = try!(cursor.read_i32::<LittleEndian>());
+        tile.weight    = try!(cursor.read_u8());
+        tile.quality   = try!(cursor.read_u8());
+        tile.unknown1  = try!(cursor.read_i16::<LittleEndian>());
+        tile.unknown2  = try!(cursor.read_u8());
+        tile.quantity  = try!(cursor.read_u8());
+        tile.animation = try!(cursor.read_i16::<LittleEndian>());
+        tile.unknown3  = try!(cursor.read_u8());
+        tile.hue       = try!(cursor.read_u8());
+        tile.unknown4  = try!(cursor.read_u8());
+        tile.unknown5  = try!(cursor.read_u8());
+        tile.height    = try!(cursor.read_u8());
         try!(cursor.take(NAME_LENGTH).read_to_string(&mut tile.name));
 
         Ok(tile)
