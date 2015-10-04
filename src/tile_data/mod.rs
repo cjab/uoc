@@ -6,8 +6,8 @@ use std::fs::File;
 pub use self::land_tile::LandTile;
 pub use self::static_tile::StaticTile;
 
-const BLOCK_HEADER_SIZE:     usize =  4;
-const TILES_IN_BLOCK:        usize = 32;
+const BLOCK_HEADER_SIZE:     usize =   4;
+const TILES_IN_BLOCK:        usize =  32;
 const NUMBER_OF_LAND_BLOCKS: usize = 512;
 
 

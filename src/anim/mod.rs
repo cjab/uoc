@@ -53,6 +53,7 @@ impl AnimationFile {
         })
     }
 
+
     pub fn get_animation(&self, i: usize) -> Result<Animation, Error> {
         let entry    = &self.index.get(i);
         let mut file = &self.file;
@@ -64,6 +65,7 @@ impl AnimationFile {
 
         try!(file.seek(SeekFrom::Start(entry.lookup as u64)));
         let buf: Vec<u8> = try!(file.take(entry.length as u64).bytes().collect());
-        Ok(try!(Animation::parse(&buf[..])))
+
+        Ok(try!(Animation::parse(&buf)))
     }
 }

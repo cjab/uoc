@@ -29,8 +29,7 @@ impl Animation {
         }).collect());
         let frames: Vec<_> = try!(lookup.iter().map(|&offset| {
             let frame_start = (PALETTE_SIZE + offset as usize) as usize;
-            println!("FRAME START: {}", frame_start);
-            Frame::parse(&buf[frame_start..], &palette[..])
+            Frame::parse(&buf[frame_start..], &palette)
         }).collect());
 
         Ok(Animation { frames:  frames })
@@ -66,32 +65,25 @@ impl Frame {
         let size       = (width * height) as usize;
         let mut pixels = vec![Color::new(); size];
 
-        println!("Size: {}x{} = {} | Center: ({}, {})", width, height, size, center_x, center_y);
-
         loop {
             let header = try!(cursor.read_i32::<LittleEndian>());
             if header == 0x7fff7fff { break; }
 
-            let x_offset = ((((header >> 12) & 0x3ff) ^ 0x200) - 0x200) as i16;
-            let y_offset = ((((header >> 22) & 0x3ff) ^ 0x200) - 0x200) as i16;
-            //let x_offset = ((header >> 22) & 0x3ff) as i16;
-            //let y_offset = ((header >> 12) & 0x3ff) as i16;
-            let x_run    = 0x00000fff & header;
+            let x_offset = ((((header >> 22) & 0x3ff) ^ 0x200) - 0x200) as i16;
+            let y_offset = ((((header >> 12) & 0x3ff) ^ 0x200) - 0x200) as i16;
+            let x_run    = 0xfff & header;
 
             let run_pixels: Vec<Color> = try!((0..x_run).map(|_| {
                 cursor.read_u8().map(|c| palette[c as usize].clone())
             }).collect());
 
             let x     = center_x + x_offset;
-            let y     = center_y + y_offset;
+            let y     = center_y + y_offset + height;
             let start = (x + (y * width)) as usize;
-
-            println!("Offset: ({:4}, {:4}) | Start: ({:4}, {:4}) | Run Count: {:4}", x_offset, y_offset, x, y, x_run);
 
             for (i, pixel) in (0..run_pixels.len()).zip(run_pixels) {
                 pixels[start + i] = pixel;
             }
-
         }
 
         Ok(Frame {
