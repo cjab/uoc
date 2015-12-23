@@ -8,6 +8,9 @@ mod art;
 mod anim;
 mod texture;
 mod color;
+mod network;
+
+use network::Client;
 
 use tile_data::TileData;
 
@@ -20,6 +23,12 @@ use argparse::{ArgumentParser, Store};
 use sdl2::event::Event;
 use sdl2::surface::Surface;
 use sdl2::pixels::PixelFormatEnum;
+
+use std::io::prelude::*;
+use std::net::TcpStream;
+
+use std::io::Cursor;
+use byteorder::{BigEndian, ReadBytesExt};
 
 struct Options {
     asset_type: String,
@@ -118,62 +127,66 @@ fn get_animation(index: usize) -> (Vec<u8>, u32, u32) {
 
 
 fn main() {
-    let mut options = Options { asset_type: String::new(), index: 0 as usize };
+    //let mut options = Options { asset_type: String::new(), index: 0 as usize };
 
-    {
-        let mut parser = ArgumentParser::new();
-        parser.refer(&mut options.asset_type)
-              .add_argument("asset type", Store, "Type of asset");
-        parser.refer(&mut options.index)
-              .add_argument("id", Store, "The id of the asset");
-        parser.parse_args_or_exit();
-    }
+    let mut client = Client::connect("127.0.0.1:2593").unwrap();
+    client.login("cjab", "hippohippo");
+    client.next_packet();
 
-    let (mut asset_data, width, height) = match options.asset_type.as_ref() {
-        "land"      => get_land(options.index),
-        "texture"   => get_texture(options.index),
-        "static"    => get_static(options.index),
-        "animation" => get_animation(options.index),
-        _           => panic!("Unknown asset type!")
-    };
+    //{
+    //    let mut parser = ArgumentParser::new();
+    //    parser.refer(&mut options.asset_type)
+    //          .add_argument("asset type", Store, "Type of asset");
+    //    parser.refer(&mut options.index)
+    //          .add_argument("id", Store, "The id of the asset");
+    //    parser.parse_args_or_exit();
+    //}
 
-    let mut ctx = sdl2::init().everything().unwrap();
+    //let (mut asset_data, width, height) = match options.asset_type.as_ref() {
+    //    "land"      => get_land(options.index),
+    //    "texture"   => get_texture(options.index),
+    //    "static"    => get_static(options.index),
+    //    "animation" => get_animation(options.index),
+    //    _           => panic!("Unknown asset type!")
+    //};
 
-    let window = match ctx.window("UOC", width * 5, height * 5).position_centered().opengl().build() {
-        Ok(window) => window,
-        Err(err)   => panic!("Failed to created window: {}", err)
-    };
+    //let mut ctx = sdl2::init().everything().unwrap();
 
-    let mut renderer = match window.renderer().build() {
-        Ok(renderer) => renderer,
-        Err(err)     => panic!("Failed to create renderer: {}", err)
-    };
+    //let window = match ctx.window("UOC", width * 5, height * 5).position_centered().opengl().build() {
+    //    Ok(window) => window,
+    //    Err(err)   => panic!("Failed to created window: {}", err)
+    //};
 
-    let surface = match Surface::from_data(&mut asset_data[..], width, height, 3 * width, PixelFormatEnum::RGB24) {
-        Ok(surface) => surface,
-        Err(err)    => panic!("Failed to load surface: {}", err)
-    };
+    //let mut renderer = match window.renderer().build() {
+    //    Ok(renderer) => renderer,
+    //    Err(err)     => panic!("Failed to create renderer: {}", err)
+    //};
 
-    let texture = match renderer.create_texture_from_surface(&surface) {
-        Ok(texture) => texture,
-        Err(err)    => panic!("Failed to convert surface: {}", err)
-    };
+    //let surface = match Surface::from_data(&mut asset_data[..], width, height, 3 * width, PixelFormatEnum::RGB24) {
+    //    Ok(surface) => surface,
+    //    Err(err)    => panic!("Failed to load surface: {}", err)
+    //};
 
-    let mut drawer = renderer.drawer();
-    let _ = drawer.clear();
-    let _ = drawer.copy(&texture, None, None);
-    let _ = drawer.present();
+    //let texture = match renderer.create_texture_from_surface(&surface) {
+    //    Ok(texture) => texture,
+    //    Err(err)    => panic!("Failed to convert surface: {}", err)
+    //};
 
-    let mut events = ctx.event_pump();
+    //let mut drawer = renderer.drawer();
+    //let _ = drawer.clear();
+    //let _ = drawer.copy(&texture, None, None);
+    //let _ = drawer.present();
 
-    'event: loop {
-        for event in events.poll_iter() {
-            match event {
-                Event::Quit{..} => break 'event,
-                _               => continue
-            }
-        }
-    }
+    //let mut events = ctx.event_pump();
+
+    //'event: loop {
+    //    for event in events.poll_iter() {
+    //        match event {
+    //            Event::Quit{..} => break 'event,
+    //            _               => continue
+    //        }
+    //    }
+    //}
 }
 
 
