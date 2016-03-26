@@ -129,9 +129,9 @@ fn get_animation(index: usize) -> (Vec<u8>, u32, u32) {
 fn main() {
     //let mut options = Options { asset_type: String::new(), index: 0 as usize };
 
-    let mut client = Client::connect("127.0.0.1:2593").unwrap();
+    let mut client = Client::connect("127.0.0.1:2593");
     client.login("cjab", "hippohippo");
-    client.next_packet();
+    //client.next_packet();
 
     //{
     //    let mut parser = ArgumentParser::new();
