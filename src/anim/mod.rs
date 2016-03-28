@@ -5,7 +5,6 @@ use self::animation::Animation;
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, Read, Seek, SeekFrom};
-use byteorder;
 
 use index::Index;
 
@@ -13,7 +12,6 @@ use index::Index;
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
-    ByteOrder(byteorder::Error),
     UndefinedIndex,
     InvalidPath
 }
@@ -22,13 +20,6 @@ pub enum Error {
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Error {
         Error::Io(err)
-    }
-}
-
-
-impl From<byteorder::Error> for Error {
-    fn from(err: byteorder::Error) -> Error {
-        Error::ByteOrder(err)
     }
 }
 

@@ -4,7 +4,6 @@ mod static_tile;
 use std::fs::File;
 use std::path::Path;
 use std::io::{self, Read, Seek, SeekFrom};
-use byteorder;
 
 use index::Index;
 use self::land_tile::LandTile;
@@ -16,7 +15,6 @@ const STATIC_TILE_INDEX_OFFSET: usize = 0x4000;
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
-    ByteOrder(byteorder::Error),
     UndefinedIndex,
     IncompleteTile,
     InvalidPath
@@ -28,14 +26,6 @@ impl From<io::Error> for Error {
         Error::Io(err)
     }
 }
-
-
-impl From<byteorder::Error> for Error {
-    fn from(err: byteorder::Error) -> Error {
-        Error::ByteOrder(err)
-    }
-}
-
 
 
 pub struct ArtData {

@@ -31,7 +31,7 @@ impl StaticTile {
         let size       = (width * height) as usize;
         let mut pixels = vec![Color::new(); size];
 
-        for y in (0..height as usize) {
+        for y in 0..height as usize {
             let start = ((lookup[y as usize] + 4 + height) * 2) as u64;
             try!(cursor.seek(SeekFrom::Start(start)));
 

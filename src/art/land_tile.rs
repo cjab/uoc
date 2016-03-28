@@ -26,9 +26,9 @@ impl LandTile {
         let mut line_width = 2;
         let mut x          = HALF_WIDTH;
 
-        for y in (0..HALF_WIDTH) {
+        for y in 0..HALF_WIDTH {
             x -= 1;
-            for i in (0..line_width) {
+            for i in 0..line_width {
                 let pos   = y * WIDTH + i;
                 let pixel = try!(cursor.read_u16::<LittleEndian>().map(Color::parse));
                 pixels[pos + x] = try!(pixel);
@@ -36,9 +36,9 @@ impl LandTile {
             line_width += 2;
         }
 
-        for y in (HALF_WIDTH..WIDTH) {
+        for y in HALF_WIDTH..WIDTH {
             line_width -= 2;
-            for i in (0..line_width) {
+            for i in 0..line_width {
                 let pos   = y * WIDTH + i;
                 let pixel = try!(cursor.read_u16::<LittleEndian>().map(Color::parse));
                 pixels[pos + x] = try!(pixel);
