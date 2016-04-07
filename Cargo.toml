@@ -9,4 +9,4 @@ name = "uoc"
 [dependencies]
 byteorder = "*"
 argparse = "*"
-sdl2 = "0.4"
+sdl2 = "0.17"

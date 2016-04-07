@@ -27,7 +27,7 @@ impl LandTile {
 
 impl Tile for LandTile {
 
-    fn parse(buf: &[u8]) -> Result<LandTile, io::Error> {
+    fn parse(buf: &[u8]) -> Result<Box<LandTile>, io::Error> {
         let mut cursor = io::Cursor::new(buf);
         let mut tile   = Self::new();
 
@@ -38,7 +38,7 @@ impl Tile for LandTile {
             Err(_) => ()
         }
 
-        Ok(tile)
+        Ok(Box::new(tile))
     }
 
 

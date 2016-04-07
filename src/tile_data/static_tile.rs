@@ -46,7 +46,7 @@ impl StaticTile {
 
 impl Tile for StaticTile {
 
-    fn parse(buf: &[u8]) -> Result<StaticTile, io::Error> {
+    fn parse(buf: &[u8]) -> Result<Box<StaticTile>, io::Error> {
         let mut cursor = io::Cursor::new(buf);
         let mut tile   = Self::new();
 
@@ -64,7 +64,7 @@ impl Tile for StaticTile {
         tile.height    = try!(cursor.read_u8());
         try!(cursor.take(NAME_LENGTH).read_to_string(&mut tile.name));
 
-        Ok(tile)
+        Ok(Box::new(tile))
     }
 
     fn size() -> usize { 37 }

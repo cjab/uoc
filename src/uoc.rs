@@ -137,9 +137,10 @@ fn main() {
         _           => panic!("Unknown asset type!")
     };
 
-    let mut ctx = sdl2::init().everything().unwrap();
+    let mut ctx = sdl2::init().unwrap();
+    let mut video = ctx.video().unwrap();
 
-    let window = match ctx.window("UOC", width * 5, height * 5).position_centered().opengl().build() {
+    let window = match video.window("UOC", width * 5, height * 5).position_centered().opengl().build() {
         Ok(window) => window,
         Err(err)   => panic!("Failed to created window: {}", err)
     };
@@ -156,15 +157,14 @@ fn main() {
 
     let texture = match renderer.create_texture_from_surface(&surface) {
         Ok(texture) => texture,
-        Err(err)    => panic!("Failed to convert surface: {}", err)
+        Err(err)    => panic!("Failed to convert surface: {:?}", err)
     };
 
-    let mut drawer = renderer.drawer();
-    let _ = drawer.clear();
-    let _ = drawer.copy(&texture, None, None);
-    let _ = drawer.present();
+    let _ = renderer.clear();
+    let _ = renderer.copy(&texture, None, None);
+    let _ = renderer.present();
 
-    let mut events = ctx.event_pump();
+    let mut events = ctx.event_pump().unwrap();
 
     'event: loop {
         for event in events.poll_iter() {
